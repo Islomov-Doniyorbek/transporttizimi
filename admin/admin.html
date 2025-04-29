@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="./admin.css">
+    <script type="module" src="./admin.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <title>Admin | Dashboard</title>
+</head>
+<body>
+    <section id="menu">
+        <div class="logo">
+            <h2>WTS</h2>
+        </div>
+        <div class="items">
+            <li><i class="bx bxs-user"></i><a href="./admin.html">Dashboard</a></li>
+            <li><i class="bx bxs-chart"></i><a href="./idriver.html">Haydovchi</a></li>
+            <li><i class="bx bxs-chart"></i><a href="./orders.html">Buyurtmalar</a></li>
+            <li><i class="bx bxs-chart"></i><a href="#">Blank</a></li>
+        </div>
+    </section>
+
+    <section id="interface">
+        <div class="navigation">
+            <div class="n1">
+                <div><i id="menu-btn" class="bx bxs-chart"></i></div>
+                <div class="search">
+                </div>
+            </div>
+
+            <div class="profile">
+                <i class="bx bxs-bell"></i>
+                <img src="/img/logo.png" alt="">
+            </div>
+        </div>
+
+        <h3 class="i-name">
+            Dashboard
+        </h3>
+
+        <div class="values">
+            <div class="valBox">
+                <i class="bx bxs-group"  style="--i: lightblue;"></i>
+                <div class="val">
+                    <h3 id="userCount">8 211</h3>
+                    <span>Foydalanuvchilar soni</span>
+                </div>
+            </div>
+            <div class="valBox">
+                <i class="bx bxs-group" style="--i: orange;"></i>
+                <div class="val">
+                    <h3>125</h3>
+                    <span>Haydovchilar</span>
+                </div>
+            </div>
+            <div class="valBox">
+                <i class="bx bxs-group" style="--i: chocolate;"></i>
+                <div class="val">
+                    <h3>34</h3>
+                    <span>Buyurtmalar</span>
+                </div>
+            </div>
+            <div class="valBox">
+                <i class="bx bxs-group" style="--i: purple;"></i>
+                <div class="val">
+                    <h3><span id="total">740</span> $</h3>
+                    <span>Tushumlar</span>
+                </div>
+            </div>
+        </div>
+        <h2>Foydalanuvchilar</h2>
+        <div class="board">
+            <table width="100%">
+              <thead>
+                <tr>
+                  <th>T/r</th>
+                  <th>Name</th>
+                  <th>Title</th>
+                  <th>Role</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody">
+                <!-- Supabase-dan kelgan userlar shu yerda ko‘rsatiladi -->
+              </tbody>
+            </table>
+          </div>
+    </section>
+
+
+    <script type="module">
+       import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabase = createClient(
+  'https://fzrblkxtqufbodpctmvm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cmJsa3h0cXVmYm9kcGN0bXZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMjQ3MjcsImV4cCI6MjA2MDgwMDcyN30.lNGYPRpUfc5TfDk5klQqKwA3wTOIwkhAUuKm78B6bU8'
+);
+
+
+// Jadval body-ni olish
+const userTableBody = document.getElementById('userTableBody');
+
+// Userlarni olish va jadvalga chiqarish funksiyasi
+async function loadUsers() {
+  const { data, error } = await supabase
+    .from('users') // <-- Jadval nomi
+    .select('*');
+
+  if (error) {
+    console.error('Xatolik:', error.message);
+    return;
+  }
+
+  // Jadvalni tozalaymiz
+  userTableBody.innerHTML = '';
+  document.querySelector("#userCount").innerHTML = data.length;
+  // Har bir user uchun <tr> yaratamiz
+  data.forEach((user, index) => {
+    const row = document.createElement('tr');
+
+    // Agar user avatar yo‘q bo‘lsa, default rasm
+    // const avatar = user.avatar_url || '';
+
+    // Sanani chiroyli formatlab olamiz (optional)
+    // const joinedDate = new Date(user.created_at).toLocaleDateString();
+
+    row.innerHTML = `
+      <td>${index + 1}</td>
+      <td class="people">
+        <img src="/main_page/images/open-road.jpg" alt="" style="width:40px;height:40px;border-radius:50%;">
+        <div class="people-de">
+          <h5>${user.full_name}</h5>
+          <p>${user.email}</p>
+        </div>
+      </td>
+      <td class="people-des">
+        <h5>${user.created_at}</h5>
+      </td>
+      <td class="role">
+        <p>${user.role || 'User'}</p>
+      </td>
+    `;
+
+    userTableBody.appendChild(row);
+  });
+}
+
+// Sahifa yuklanganda chaqiramiz
+loadUsers();
+
+    </script>
+</body>
+</html>

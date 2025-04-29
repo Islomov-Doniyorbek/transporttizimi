@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta http-equiv="X-UA-Compatible" content="IE=7">
+  <title>Admin Panel - Driver va Transport qo'shish</title>
+  <style>
+    form#driver-form, form#transport-form {
+      max-width: 450px;
+      margin: 30px auto;
+      padding: 25px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-top: 50px;
+      margin-bottom: 15px;
+      font-size: 26px;
+    }
+  
+    form#driver-form input,
+    form#transport-form input,
+    form#transport-form select {
+      width: 100%;
+      padding: 12px 14px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: #f9f9f9;
+      transition: all 0.3s ease;
+    }
+  
+    form#driver-form input:focus,
+    form#transport-form input:focus,
+    form#transport-form select:focus {
+      border-color: #4CAF50;
+      background-color: #fff;
+      outline: none;
+    }
+  
+    form#driver-form button,
+    form#transport-form button {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      padding: 14px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+  
+    form#driver-form button:hover,
+    form#transport-form button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Haydovchi Qo'shish</h1>
+  <form id="driver-form">
+    <input type="text" id="full_name" placeholder="F.I.O" required><br>
+    <input type="text" id="passport_number" placeholder="Passport Number" required><br>
+    <input type="text" id="license_id" placeholder="License ID" required><br>
+    <input type="text" id="login" placeholder="Login" required><br>
+    <input type="password" id="password" placeholder="Password" required><br>
+    <button type="submit">Haydovchini qo'shish</button>
+  </form>
+
+  <h1>Transport Qo'shish</h1>
+  <form id="transport-form">
+    <input type="text" id="number_plate" placeholder="Number Plate" required><br>
+    <input type="text" id="model" placeholder="Model" required><br>
+    <input type="number" id="capacity" placeholder="Capacity (kg)" required><br>
+
+    <select id="driver_id" required>
+      <option value="">Haydovchini tanlang</option>
+    </select><br>
+
+    <button type="submit">Transport qo'shish</button>
+  </form>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabase = createClient(
+  'https://fzrblkxtqufbodpctmvm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cmJsa3h0cXVmYm9kcGN0bXZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMjQ3MjcsImV4cCI6MjA2MDgwMDcyN30.lNGYPRpUfc5TfDk5klQqKwA3wTOIwkhAUuKm78B6bU8'
+);
+
+// Haydovchini qo'shish
+const driverForm = document.getElementById('driver-form');
+driverForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const full_name = document.getElementById('full_name').value;
+  const passport_number = document.getElementById('passport_number').value;
+  const license_id = document.getElementById('license_id').value;
+  const login = document.getElementById('login').value;
+  const password = document.getElementById('password').value;
+
+  const { data, error } = await supabase
+    .from('drivers')
+    .insert([
+      { full_name, passport_number, license_id, login, password }
+    ]);
+
+  if (error) {
+    alert('Xatolik: ' + error.message);
+  } else {
+    alert('Haydovchi qo‘shildi!');
+    driverForm.reset();
+    loadDrivers(); // haydovchilar ro'yxatini yangilash
+  }
+});
+
+// Transport qo'shish
+const transportForm = document.getElementById('transport-form');
+transportForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const number_plate = document.getElementById('number_plate').value;
+  const model = document.getElementById('model').value;
+  const capacity = parseInt(document.getElementById('capacity').value);
+  const driver_id = document.getElementById('driver_id').value;
+
+  const { data, error } = await supabase
+    .from('transport')
+    .insert([
+      { number_plate, model, capacity, driver_id }
+    ]);
+
+  if (error) {
+    alert('Xatolik: ' + error.message);
+  } else {
+    alert('Transport qo‘shildi!');
+    transportForm.reset();
+  }
+});
+
+// Haydovchilarni select-ga yuklash
+async function loadDrivers() {
+  const { data, error } = await supabase
+    .from('drivers')
+    .select('id, full_name');
+
+  if (error) {
+    console.error('Haydovchilarni olishda xatolik:', error.message);
+    return;
+  }
+
+  const driverSelect = document.getElementById('driver_id');
+  driverSelect.innerHTML = '<option value="">Haydovchini tanlang</option>';
+
+  data.forEach(driver => {
+    const option = document.createElement('option');
+    option.value = driver.id;
+    option.textContent = driver.full_name;
+    driverSelect.appendChild(option);
+  });
+}
+
+// Sahifa yuklanganda haydovchilarni yuklash
+loadDrivers();
+
+  </script>
+</body>
+</html>

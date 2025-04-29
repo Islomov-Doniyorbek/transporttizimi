@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buyurtmalar - iDriver</title>
+    <style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+        padding: 20px;
+      }
+  
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 30px;
+      }
+  
+      #driver-orders {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+  
+      .order-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        color: navy;
+        font-weight: 600;
+        transition: transform 0.2s ease;
+      }
+  
+      .order-card:hover {
+        transform: translateY(-5px);
+      }
+  
+      .order-card p {
+        margin: 10px 0;
+        color: #34495e;
+      }
+  
+      .no-orders {
+        text-align: center;
+        font-size: 18px;
+        color: #888;
+      }
+      button {
+        padding: 10px;
+        font-size: 18px;
+        background: lime;
+        border: 1px solid grey;
+        outline: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+    </style>
+</head>
+<body>
+    <h1>Buyurtmalarim</h1>
+    <div id="driver-orders"></div>
+  
+    <script type="module">
+       import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabase = createClient(
+  'https://fzrblkxtqufbodpctmvm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cmJsa3h0cXVmYm9kcGN0bXZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMjQ3MjcsImV4cCI6MjA2MDgwMDcyN30.lNGYPRpUfc5TfDk5klQqKwA3wTOIwkhAUuKm78B6bU8'
+);
+      const driverId = localStorage.getItem('driver_id');
+  
+      async function loadDriverOrders() {
+        const { data: orders, error } = await supabase
+          .from('orders')
+          .select('id, address, requested_date, status')
+          .eq('assigned_driver_id', driverId)
+          .eq('status', 'confirmed'); // faqat tasdiqlanganlarni ko‘rsatish
+  
+        const container = document.getElementById('driver-orders');
+  
+        if (error) {
+          container.innerHTML = 'Xatolik: ' + error.message;
+          return;
+        }
+  
+        if (orders.length === 0) {
+          container.innerHTML = '<p>Sizga hali hech qanday buyurtma biriktirilmagan.</p>';
+          return;
+        }
+  
+        orders.forEach(order => {
+          const div = document.createElement('div');
+          div.style.border = '1px solid #ccc';
+          div.style.padding = '10px';
+          div.style.margin = '10px 0';
+          div.innerHTML = `
+            <p><strong>Manzil:</strong> ${order.address}</p>
+            <p><strong>Sana:</strong> ${new Date(order.requested_date).toLocaleDateString()}</p>
+            <p><strong>Status:</strong> ${order.status}</p>
+            <p><button type="submit">Qabul qilish</button></p>
+          `;
+          container.appendChild(div);
+        });
+      }
+  
+      loadDriverOrders();
+    </script>
+  </body>
+  
+</html>

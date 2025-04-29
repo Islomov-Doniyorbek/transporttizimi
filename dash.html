@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=7">
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <title>Buyurtma Berish</title>
+  <style>
+    h1 {
+        text-align: center;
+    }
+    form#order-form {
+      max-width: 400px;
+      margin: 30px auto;
+      padding: 25px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+  
+    form#order-form h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+  
+    form#order-form input[type="text"],
+    form#order-form input[type="date"],
+    form#order-form input[type="number"] {
+      width: 100%;
+      padding: 10px 14px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: #f9f9f9;
+      transition: border-color 0.3s, background-color 0.3s;
+    }
+  
+    form#order-form input[type="text"]:focus,
+    form#order-form input[type="date"]:focus,
+    form#order-form input[type="number"]:focus {
+      border-color: #4CAF50;
+      background-color: #fff;
+      outline: none;
+    }
+  
+    form#order-form button {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 16px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+  
+    form#order-form button:hover {
+      background-color: #45a049;
+    }
+  </style>
+  
+</head>
+<body>
+  <h1>Buyurtma Berish</h1>
+
+  <form id="order-form">
+    <input type="text" id="address" placeholder="Manzil" required><br>
+    <input type="date" id="requested_date" required><br>
+    <input type="number" id="transport_count" placeholder="Nechta transport kerak?" required><br>
+    <button type="submit">Buyurtma Berish</button>
+  </form>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script type="module">
+   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabase = createClient(
+  'https://fzrblkxtqufbodpctmvm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cmJsa3h0cXVmYm9kcGN0bXZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMjQ3MjcsImV4cCI6MjA2MDgwMDcyN30.lNGYPRpUfc5TfDk5klQqKwA3wTOIwkhAUuKm78B6bU8'
+);
+const userId = localStorage.getItem('user_id');
+
+if (!userId) {
+  alert('Foydalanuvchi aniqlanmadi. Iltimos, tizimga kiring.');
+  // location.href = '/login.html'; // Login sahifasiga yo'naltirish ham mumkin
+}
+
+// Buyurtma qo'shish
+const orderForm = document.getElementById('order-form');
+orderForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const address = document.getElementById('address').value;
+  const requested_date = document.getElementById('requested_date').value;
+  const transport_count = parseInt(document.getElementById('transport_count').value);
+
+  const { data, error } = await supabase
+    .from('orders')
+    .insert([
+      { 
+        user_id: userId,
+        address, 
+        requested_date, 
+        transport_count 
+      }
+    ]);
+
+  if (error) {
+    alert('Xatolik: ' + error.message);
+  } else {
+    alert('Buyurtma muvaffaqiyatli yuborildi!');
+    orderForm.reset();
+  }
+});
+
+  </script>
+</body>
+</html>

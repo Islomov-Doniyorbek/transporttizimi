@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Buyurtmalar</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+  
+    #orders-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+  
+    .order-card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      transition: transform 0.2s;
+    }
+    .order-card:hover {
+      transform: translateY(-5px);
+    }
+    .order-card p {
+      margin: 10px 0;
+      color: #555;
+    }
+  
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  
+    /* Jadval dizayni */
+    .board {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-top: 30px;
+    }
+  
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 14px 20px;
+      text-align: left;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    tr:hover {
+      background-color: #e6f7e6;
+    }
+  
+    /* User qismini o‘zgartirish */
+    .people {
+      display: flex;
+      align-items: center;
+    }
+    .people img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+    }
+    .people-de h5 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+    .people-de p {
+      margin: 0;
+      font-size: 14px;
+      color: #777;
+    }
+    .people-des h5 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+    .role p {
+      font-weight: 600;
+      color: #4CAF50;
+      margin: 0;
+    }
+  </style>
+  
+</head>
+<body>
+  <h1>Buyurtmalarni Boshqarish</h1>
+
+  <div id="orders-list"></div>
+
+
+  <h2>Barcha buyurtmalar</h2>
+  <div class="board">
+    <table width="100%">
+      <thead>
+        <tr>
+          <th>T/r</th>
+          <th>User</th>
+          <th>Buyurtma sanasi</th>
+          <th>Buyurtma statusi</th>
+        </tr>
+      </thead>
+      <tbody id="orderTableBody">
+        <!-- Supabasedan keladigan buyurtmalar shu yerga qo‘shiladi -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script type="module" defer>
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const supabase = createClient(
+  'https://fzrblkxtqufbodpctmvm.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6cmJsa3h0cXVmYm9kcGN0bXZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUyMjQ3MjcsImV4cCI6MjA2MDgwMDcyN30.lNGYPRpUfc5TfDk5klQqKwA3wTOIwkhAUuKm78B6bU8'
+);
+
+
+// Buyurtmalarni yuklash
+async function loadOrders() {
+//   const { data: orders, error } = await supabase
+//     .from('orders')
+//     .select(`
+//       id, address, requested_date, transport_count, status,
+//       users ( full_name ), assigned_driver_id, assigned_transport_id
+//     `)
+//     .eq('status', 'pending'); // Faqat pending lar
+    const { data: orders, error } = await supabase
+  .from('orders')
+  .select('id, address, requested_date, transport_count, status, user_id, assigned_driver_id, assigned_transport_id')
+  .eq('status', 'pending');
+
+  if (error) {
+    alert('Buyurtmalarni olishda xatolik: ' + error.message);
+    return;
+  }
+
+  const { data: drivers } = await supabase.from('drivers').select('id, full_name');
+  const { data: transports } = await supabase.from('transport').select('id, number_plate, model');
+
+  const ordersList = document.getElementById('orders-list');
+  ordersList.innerHTML = '';
+
+  orders.forEach(order => {
+    const orderDiv = document.createElement('div');
+    orderDiv.style.border = '1px solid black';
+    orderDiv.style.margin = '10px';
+    orderDiv.style.padding = '10px';
+
+    orderDiv.innerHTML = `
+      <p><strong>Manzil:</strong> ${order.address}</p>
+      <p><strong>Sanasi:</strong> ${order.requested_date}</p>
+      <p><strong>Transport soni:</strong> ${order.transport_count}</p>
+      
+      <label>Haydovchi tanlang:</label>
+      <select id="driver-${order.id}">
+        <option value="">Haydovchi tanlang</option>
+        ${drivers.map(driver => `<option value="${driver.id}">${driver.full_name}</option>`).join('')}
+      </select>
+
+      <br>
+
+      <label>Transport tanlang:</label>
+      <select id="transport-${order.id}">
+        <option value="">Transport tanlang</option>
+        ${transports.map(transport => `<option value="${transport.id}">${transport.number_plate} - ${transport.model}</option>`).join('')}
+      </select>
+
+      <br><br>
+
+      <button onclick="assignOrder('${order.id}')">Tasdiqlash</button>
+    `;
+
+    ordersList.appendChild(orderDiv);
+  });
+}
+
+
+
+
+// Buyurtmaga haydovchi va transport biriktirish
+window.assignOrder = async function(orderId) {
+  const driverSelect = document.getElementById(`driver-${orderId}`);
+  const transportSelect = document.getElementById(`transport-${orderId}`);
+
+  const driverId = driverSelect.value;
+  const transportId = transportSelect.value;
+
+  if (!driverId || !transportId) {
+    alert('Iltimos, haydovchi va transportni tanlang!');
+    return;
+  }
+
+  const { error } = await supabase
+    .from('orders')
+    .update({
+      assigned_driver_id: driverId,
+      assigned_transport_id: transportId,
+      status: 'confirmed'
+    })
+    .eq('id', orderId);
+
+  if (error) {
+    alert('Tasdiqlashda xatolik: ' + error.message);
+  } else {
+    alert('Buyurtma muvaffaqiyatli tasdiqlandi!');
+    loadOrders();
+  }
+};
+
+
+// Sahifa yuklanganda buyurtmalarni ko‘rsatish
+loadOrders();
+
+
+
+// Jadval body elementini olish
+const orderTableBody = document.getElementById('orderTableBody');
+
+// Buyurtmalarni yuklash funksiyasi
+async function loadOrder() {
+  const { data, error } = await supabase
+    .from('orders')
+    .select(`
+  id,
+  address,
+  requested_date,
+  transport_count,
+  status,
+  created_at,
+  user_id
+`); // "users" jadvalidan `full_name` va `email`ni JOIN qilamiz
+
+  if (error) {
+    console.error('Xatolik:', error.message);
+    return;
+  }
+
+  // Jadvalni tozalab tashlaymiz
+  orderTableBody.innerHTML = '';
+
+  // Har bir buyurtma uchun <tr> yaratamiz
+  data.forEach((order, index) => {
+    const row = document.createElement('tr');
+
+    // User ma'lumotlari
+    const user = order.users || { full_name: 'Noma\'lum', email: '' };
+
+    // Sanani chiroyli formatlash
+    const requestedDate = new Date(order.requested_date).toLocaleDateString();
+
+    row.innerHTML = `
+      <td>${index + 1}</td>
+      <td class="people">
+        <div class="people-de">
+          <h5>${user.full_name}</h5>
+          <p>${user.email}</p>
+        </div>
+      </td>
+      <td class="people-des">
+        <h5>${requestedDate}</h5>
+      </td>
+      <td class="role">
+        <p>${order.status}</p>
+      </td>
+    `;
+
+    orderTableBody.appendChild(row);
+  });
+}
+
+// Sahifa yuklanganda buyurtmalarni chaqiramiz
+loadOrder();
+
+
+  </script>
+</body>
+</html>

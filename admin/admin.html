@@ -27,12 +27,13 @@
             <div class="n1">
                 <div><i id="menu-btn" class="bx bxs-chart"></i></div>
                 <div class="search">
+                  Waste Transport Service
                 </div>
             </div>
 
             <div class="profile">
                 <i class="bx bxs-bell"></i>
-                <img src="/img/logo.png" alt="">
+                <img src="/main_page/images/3.jpg" alt="">
             </div>
         </div>
 
@@ -43,29 +44,29 @@
         <div class="values">
             <div class="valBox">
                 <i class="bx bxs-group"  style="--i: lightblue;"></i>
-                <div class="val">
-                    <h3 id="userCount">8 211</h3>
+                <a href="/admin/admin.html" class="val">
+                    <h3 id="userCount">---</h3>
                     <span>Foydalanuvchilar soni</span>
-                </div>
+                </a>
             </div>
             <div class="valBox">
                 <i class="bx bxs-group" style="--i: orange;"></i>
-                <div class="val">
-                    <h3>125</h3>
+                <a href="/admin/idriver.html" class="val">
+                    <h3 id="driversCount">---</h3>
                     <span>Haydovchilar</span>
-                </div>
+                </a>
             </div>
-            <div class="valBox">
+            <a href="/admin/orders.html" class="valBox">
                 <i class="bx bxs-group" style="--i: chocolate;"></i>
                 <div class="val">
-                    <h3>34</h3>
+                    <h3 id="ordersCount">---</h3>
                     <span>Buyurtmalar</span>
                 </div>
-            </div>
+            </a>
             <div class="valBox">
                 <i class="bx bxs-group" style="--i: purple;"></i>
                 <div class="val">
-                    <h3><span id="total">740</span> $</h3>
+                    <h3><span id="total">1430</span> $</h3>
                     <span>Tushumlar</span>
                 </div>
             </div>
@@ -112,7 +113,6 @@ async function loadUsers() {
     return;
   }
 
-  // Jadvalni tozalaymiz
   userTableBody.innerHTML = '';
   document.querySelector("#userCount").innerHTML = data.length;
   // Har bir user uchun <tr> yaratamiz
@@ -148,7 +148,34 @@ async function loadUsers() {
 
 // Sahifa yuklanganda chaqiramiz
 loadUsers();
+async function driverCounts() {
+  const {data, error} = await supabase
+  .from('drivers')
+  .select('*');
+  if (error) {
+    console.error('Xatolik:', error.message);
+    return;
+  }
 
+  userTableBody.innerHTML = '';
+  document.querySelector("#driversCount").innerHTML = data.length;
+
+}
+driverCounts()
+async function orderCounts() {
+  const {data, error} = await supabase
+  .from('orders')
+  .select('*');
+  if (error) {
+    console.error('Xatolik:', error.message);
+    return;
+  }
+
+  userTableBody.innerHTML = '';
+  document.querySelector("#ordersCount").innerHTML = data.length;
+
+}
+orderCounts()
     </script>
 </body>
 </html>

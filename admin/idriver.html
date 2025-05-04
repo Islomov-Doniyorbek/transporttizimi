@@ -13,6 +13,9 @@
       background-color: #ffffff;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
     }
   
     h1 {
@@ -26,7 +29,7 @@
     form#driver-form input,
     form#transport-form input,
     form#transport-form select {
-      width: 100%;
+      width: 90%;
       padding: 12px 14px;
       margin: 10px 0;
       border: 1px solid #ccc;
@@ -62,10 +65,61 @@
     form#transport-form button:hover {
       background-color: #45a049;
     }
+
+    .board {
+    width: 94%;
+    margin: 30px 0 30px 30px;
+    overflow: auto;
+    background: #fff;
+    border-radius: 8px;
+}
+.board .people {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: start;
+}
+table {
+    border-collapse: collapse;
+}
+tr {
+    border-bottom: 1px solid #626262;
+}
+
+thead th {
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    padding: 15px;
+    text-align: start;
+    text-transform: uppercase;
+    background: #f9fafb;
+}
+tbody td {
+    padding: 15px;
+}
+.formBoxs {
+  width: 100%;
+  position: relative;
+  display: grid;
+  gap: 10px;
+}
+@media (min-width: 848px) {
+  .formBoxs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 847px) {
+  .formBoxs {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
   </style>
 </head>
 <body>
-  <h1>Haydovchi Qo'shish</h1>
+  <div class="formBoxs">
+    <div class="col">
+      <h1>Haydovchi Qo'shish</h1>
   <form id="driver-form">
     <input type="text" id="full_name" placeholder="F.I.O" required><br>
     <input type="text" id="passport_number" placeholder="Passport Number" required><br>
@@ -74,8 +128,10 @@
     <input type="password" id="password" placeholder="Password" required><br>
     <button type="submit">Haydovchini qo'shish</button>
   </form>
+    </div>
 
-  <h1>Transport Qo'shish</h1>
+  <div class="col">
+    <h1>Transport Qo'shish</h1>
   <form id="transport-form">
     <input type="text" id="number_plate" placeholder="Number Plate" required><br>
     <input type="text" id="model" placeholder="Model" required><br>
@@ -87,6 +143,29 @@
 
     <button type="submit">Transport qo'shish</button>
   </form>
+  </div>
+  </div>
+
+
+  <h2>Barcha haydovchilar</h2>
+  <div class="board">
+    <table width="100%">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>FISH</th>
+          <th>Passport</th>
+          <th>Haydovchilik guvohnomasi</th>
+          <th>Login</th>
+          <th>Parol</th>
+          <th>Kiritilgan vaqt</th>
+        </tr>
+      </thead>
+      <tbody id="driversTableBody">
+        <!-- Supabasedan keladigan buyurtmalar shu yerga qo‘shiladi -->
+      </tbody>
+    </table>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script type="module">
@@ -171,6 +250,45 @@ async function loadDrivers() {
 
 // Sahifa yuklanganda haydovchilarni yuklash
 loadDrivers();
+
+async function allDrivers() {
+  
+  const { data, error } = await supabase
+    .from('drivers')
+    .select('*');
+
+data.forEach((taksis, i) => {
+    const row = document.createElement('tr');
+
+    row.innerHTML = `
+      <td>${taksis.id}</td>
+      <td>
+        ${taksis.full_name}
+      </td>
+      <td>
+        ${taksis.passport_number}
+      </td>
+      <td>
+        ${taksis.license_id}
+      </td>
+      <td>
+        ${taksis.login}
+      </td>
+      <td>
+        ${taksis.password}
+      </td>
+      <td>
+        ${taksis.created_at}
+      </td>
+    `;
+
+    document.querySelector("#driversTableBody").appendChild(row);
+  });
+}
+
+
+
+allDrivers()
 
   </script>
 </body>

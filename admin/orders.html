@@ -147,6 +147,8 @@
         <tr>
           <th>T/r</th>
           <th>User</th>
+          <th>Manzil</th>
+          <th>Auto Soni</th>
           <th>Buyurtma sanasi</th>
           <th>Buyurtma statusi</th>
         </tr>
@@ -307,6 +309,12 @@ async function loadOrder() {
           <h5>${user.full_name}</h5>
           <p>${user.email}</p>
         </div>
+      </td>
+      <td class="people-des">
+        <h5>${order.address}</h5>
+      </td>
+      <td class="people-des">
+        <h5>${order.transport_count}</h5>
       </td>
       <td class="people-des">
         <h5>${requestedDate}</h5>

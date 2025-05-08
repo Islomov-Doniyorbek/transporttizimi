@@ -77,7 +77,7 @@ const supabase = createClient(
           .from('orders')
           .select('id, address, requested_date, status')
           .eq('assigned_driver_id', driverId)
-          .eq('status', 'confirmed'); // faqat tasdiqlanganlarni ko‘rsatish
+          .eq('status', 'confirmed'); 
   
         const container = document.getElementById('driver-orders');
   
@@ -100,11 +100,24 @@ const supabase = createClient(
             <p><strong>Manzil:</strong> ${order.address}</p>
             <p><strong>Sana:</strong> ${new Date(order.requested_date).toLocaleDateString()}</p>
             <p><strong>Status:</strong> ${order.status}</p>
-            <p><button type="submit">Qabul qilish</button></p>
+            <p><button type="submit" id="confr">Qabul qilish</button></p>
           `;
           container.appendChild(div);
         });
+
+
+
+
+        let btns = document.querySelectorAll("#confr");
+        btns.forEach(e=>{
+          e.addEventListener("click", ()=>{
+            e.innerHTML = "Qabul qilindi!";
+          })
+        })
       }
+
+
+      
   
       loadDriverOrders();
     </script>

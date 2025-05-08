@@ -78,8 +78,9 @@
               <thead>
                 <tr>
                   <th>T/r</th>
-                  <th>Name</th>
-                  <th>Title</th>
+                  <th>Ism/Email</th>
+                  <th>Parol</th>
+                  <th>Vaqti</th>
                   <th>Role</th>
                 </tr>
               </thead>
@@ -120,12 +121,6 @@ async function loadUsers() {
   data.forEach((user, index) => {
     const row = document.createElement('tr');
 
-    // Agar user avatar yo‘q bo‘lsa, default rasm
-    // const avatar = user.avatar_url || '';
-
-    // Sanani chiroyli formatlab olamiz (optional)
-    // const joinedDate = new Date(user.created_at).toLocaleDateString();
-
     row.innerHTML = `
       <td>${index + 1}</td>
       <td class="people">
@@ -134,6 +129,9 @@ async function loadUsers() {
           <h5>${user.full_name}</h5>
           <p>${user.email}</p>
         </div>
+      </td>
+      <td class="people-des">
+        <h5>${user.password}</h5>
       </td>
       <td class="people-des">
         <h5>${user.created_at}</h5>

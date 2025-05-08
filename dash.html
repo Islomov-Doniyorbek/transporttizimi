@@ -86,10 +86,7 @@ const userId = localStorage.getItem('user_id');
 
 if (!userId) {
   alert('Foydalanuvchi aniqlanmadi. Iltimos, tizimga kiring.');
-  // location.href = '/login.html'; // Login sahifasiga yo'naltirish ham mumkin
 }
-
-// Buyurtma qo'shish
 const orderForm = document.getElementById('order-form');
 orderForm.addEventListener('submit', async (e) => {
   e.preventDefault();

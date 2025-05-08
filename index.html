@@ -66,7 +66,6 @@
       const email = document.getElementById('logEmail').value;
 const password = document.getElementById('logPassword').value;
 
-// 1. Foydalanuvchilar jadvalidan tekshirish
 let { data: user, error: userError } = await supabase
   .from('users')
   .select('*')
@@ -75,15 +74,13 @@ let { data: user, error: userError } = await supabase
   .single();
 
 if (user && !userError) {
-  // Users jadvalidan topildi
   localStorage.setItem('user_id', user.id);
-  localStorage.setItem('user_role', user.role); // (admin/user)
+  localStorage.setItem('user_role', user.role); 
   localStorage.setItem('user_name', user.full_name);
 
   alert('Tizimga foydalanuvchi sifatida muvaffaqiyatli kirdingiz!');
-  window.location.href = '/main_page/index.html'; // foydalanuvchi sahifasi
+  window.location.href = '/main_page/index.html'; 
 } else {
-  // 2. Haydovchilar jadvalidan tekshirish
   let { data: driver, error: driverError } = await supabase
     .from('drivers')
     .select('*')
@@ -92,14 +89,12 @@ if (user && !userError) {
     .single();
 
   if (driver && !driverError) {
-    // Haydovchi topildi
     localStorage.setItem('driver_id', driver.id);
     localStorage.setItem('driver_name', driver.full_name);
 
     alert('Tizimga haydovchi sifatida muvaffaqiyatli kirdingiz!');
-    window.location.href = '/haydovchi.html'; // haydovchi sahifasi
+    window.location.href = '/haydovchi.html'; 
   } else {
-    // Ikkalasidan ham topilmadi
     alert("Login yoki parol xato!");
   }
 }
@@ -113,12 +108,6 @@ if (user && !userError) {
         window.location.href = '/main_page/index.html';
       }
     };
-
-    // // Formalarni almashtirish uchun funksiya
-    // window.showForm = function(id) {
-    //   document.querySelectorAll('.formBox').forEach(box => box.classList.remove('active'));
-    //   document.getElementById(id).classList.add('active');
-    // };
   </script>
 </body>
 </html>

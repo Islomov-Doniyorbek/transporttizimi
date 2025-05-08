@@ -171,13 +171,6 @@ const supabase = createClient(
 
 // Buyurtmalarni yuklash
 async function loadOrders() {
-//   const { data: orders, error } = await supabase
-//     .from('orders')
-//     .select(`
-//       id, address, requested_date, transport_count, status,
-//       users ( full_name ), assigned_driver_id, assigned_transport_id
-//     `)
-//     .eq('status', 'pending'); // Faqat pending lar
     const { data: orders, error } = await supabase
   .from('orders')
   .select('id, address, requested_date, transport_count, status, user_id, assigned_driver_id, assigned_transport_id')
@@ -262,15 +255,10 @@ window.assignOrder = async function(orderId) {
 };
 
 
-// Sahifa yuklanganda buyurtmalarni ko‘rsatish
 loadOrders();
 
-
-
-// Jadval body elementini olish
 const orderTableBody = document.getElementById('orderTableBody');
 
-// Buyurtmalarni yuklash funksiyasi
 async function loadOrder() {
   const { data, error } = await supabase
     .from('orders')
@@ -282,24 +270,20 @@ async function loadOrder() {
   status,
   created_at,
   user_id
-`); // "users" jadvalidan `full_name` va `email`ni JOIN qilamiz
+`);
 
   if (error) {
     console.error('Xatolik:', error.message);
     return;
   }
 
-  // Jadvalni tozalab tashlaymiz
   orderTableBody.innerHTML = '';
 
-  // Har bir buyurtma uchun <tr> yaratamiz
   data.forEach((order, index) => {
     const row = document.createElement('tr');
 
-    // User ma'lumotlari
     const user = order.users || { full_name: 'Noma\'lum', email: '' };
 
-    // Sanani chiroyli formatlash
     const requestedDate = new Date(order.requested_date).toLocaleDateString();
 
     row.innerHTML = `
@@ -328,7 +312,6 @@ async function loadOrder() {
   });
 }
 
-// Sahifa yuklanganda buyurtmalarni chaqiramiz
 loadOrder();
 
 
